@@ -1,0 +1,22 @@
+#ifndef APPLICATION_CONFIG_H
+#define APPLICATION_CONFIG_H
+
+
+#define I2C_MASTER_SDA_IO   8
+#define I2C_MASTER_SCL_IO   9
+#define I2C_FREQUENCY_HZ    100000  // 100 kHz
+#define I2C_TIMEOUT_MS      20u
+#define I2C_SCAN_TIMEOUT_MS 500u
+
+
+#define MT6701_I2C_ADDRESS 0x06
+#define TCA9548A_I2C_ADDRESS 0x70
+
+
+#define U14_CONTROLLER_DEADZONE 150u
+
+
+#define REFRESH_PERIOD_MS 10u
+
+
+#endif
