@@ -13,6 +13,8 @@
 #define US_TO_MS (MS_TO_S)
 #define MS_TO_US (S_TO_MS)
 
+#define BYTES_TO_BITS 8
+
 #define U12_MAX 4095u
 #define U16_MAX UINT16_MAX
 
