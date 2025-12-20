@@ -2,15 +2,17 @@
 #define RC_CHANNELS_H
 
 
+#include <stdbool.h>
+
+#include "i2c_wrapper.h"
 #include "application_config.h"
 #include "application_types.h"
-#include "i2c_wrapper.h"
 
 
 typedef struct AnalogInput AnalogInput;
 
 
-AnalogInput* AnalogInput_init(uint16_limit raw_limits, uint16 deadzone, bool centered);
+AnalogInput* AnalogInput_init(uint16_limit raw_limits, uint16 deadzone, float32 filter, bool centered);
 
 void AnalogInput_update(AnalogInput* object, uint16 raw_value);
 

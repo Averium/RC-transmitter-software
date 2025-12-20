@@ -23,13 +23,13 @@ typedef enum {
 
 
 typedef enum {
-    CHANNEL_1,
-    CHANNEL_2,
-    CHANNEL_3,
-    CHANNEL_4,
-    CHANNEL_5,
-    CHANNEL_6,
-    N_CHANNELS,
+    SERIAL_CHANNEL_1,
+    SERIAL_CHANNEL_2,
+    SERIAL_CHANNEL_3,
+    SERIAL_CHANNEL_4,
+    SERIAL_CHANNEL_5,
+    SERIAL_CHANNEL_6,
+    N_SERIAL_CHANNELS,
 } SerialChannel;
 
 

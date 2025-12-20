@@ -1,4 +1,4 @@
-#include "rc_channels.h"
+#include "rc_channel.h"
 #include "application_utils.h"
 
 
@@ -6,10 +6,12 @@ struct AnalogInput {
     uint16 raw_value;
     uint16_limit raw_limits;
 
-    bool centered;
     uint16 deadzone;
-
+    float32 filter;
+    
     float32 mapped_value;
+
+    bool centered;
 };
 
 
@@ -26,7 +28,11 @@ typedef struct {
 } DeadzoneReturnType;
 
 
-static DeadzoneReturnType AnalogInput_deadzone(AnalogInput* object, uint16 raw_value) {
+static DeadzoneReturnType AnalogInput_deadzone(const AnalogInput* object, uint16 raw_value) {
+
+    if (object->deadzone == 0) {
+        return (DeadzoneReturnType) { raw_value, object->raw_limits, RIGHT };
+    }
 
     uint16_limit shrinked_limit = shrink_uint16_limit(object->raw_limits, object->deadzone);
     uint16 saturated_value = saturate_uint16(raw_value, &shrinked_limit);
@@ -36,9 +42,14 @@ static DeadzoneReturnType AnalogInput_deadzone(AnalogInput* object, uint16 raw_v
 }
 
 
-static DeadzoneReturnType AnalogInput_deadzone_center(AnalogInput* object, uint16 raw_value) {
+static DeadzoneReturnType AnalogInput_deadzone_center(const AnalogInput* object, uint16 raw_value) {
 
     uint16 center = ((object->raw_limits.min + object->raw_limits.max ) / 2u);
+
+    if (object->deadzone == 0) {
+        return (DeadzoneReturnType) { raw_value, object->raw_limits, raw_value < center ? LEFT : RIGHT };
+    }
+
     uint16_limit shrinked_limit;
     AnalogInputSide side;
 
@@ -61,6 +72,13 @@ static DeadzoneReturnType AnalogInput_deadzone_center(AnalogInput* object, uint1
 }
 
 
+static uint16 AnalogInput_filter(const AnalogInput* object, uint16 raw_value) {
+
+    // if (object->filter > 0.95f) { return raw_value; }
+    return (uint16)(((float32)(raw_value)) * object->filter + ((float32)(object->raw_value)) * (1.0f - object->filter));
+}
+
+
 static void AnalogInput_calibrate(AnalogInput* object, uint16 raw_value) {
     if (object->raw_limits.max < object->raw_limits.min) {
         object->raw_limits.min = raw_value;
@@ -72,7 +90,9 @@ static void AnalogInput_calibrate(AnalogInput* object, uint16 raw_value) {
 }
 
 
-AnalogInput* AnalogInput_init(uint16_limit raw_limits, uint16 deadzone, bool centered) {
+AnalogInput* AnalogInput_init(uint16_limit raw_limits, uint16 deadzone, float32 filter, bool centered) {
+
+    const static float32_limit filter_limit = (float32_limit) { 0.0f, 1.0f };
 
     AnalogInput* object = malloc(sizeof(AnalogInput));
 
@@ -85,6 +105,7 @@ AnalogInput* AnalogInput_init(uint16_limit raw_limits, uint16 deadzone, bool cen
     
     object->raw_limits = raw_limits;
     object->deadzone = deadzone;
+    object->filter = saturate_float32(filter, &filter_limit);
     object->centered = centered;
 
     return object;
@@ -92,6 +113,8 @@ AnalogInput* AnalogInput_init(uint16_limit raw_limits, uint16 deadzone, bool cen
 
 
 void AnalogInput_update(AnalogInput* object, uint16 raw_value) {
+
+    raw_value = AnalogInput_filter(object, raw_value);
 
     AnalogInput_calibrate(object, raw_value);
     

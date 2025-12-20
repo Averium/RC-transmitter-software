@@ -13,6 +13,11 @@
 #define US_TO_MS (MS_TO_S)
 #define MS_TO_US (S_TO_MS)
 
+#define U12_MAX 4095u
+#define U16_MAX UINT16_MAX
+
+#define U16_LIMIT_UNCALIBRATED ((uint16_limit){ U16_MAX, 0u })
+
 
 inline float32 saturate_float32(float32 value, const float32_limit* limit) {
     if (value <= limit->min) { return limit->min; }
